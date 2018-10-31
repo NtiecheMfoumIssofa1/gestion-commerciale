@@ -1,68 +1,61 @@
 package org.gescom.web;
 
+
 import java.util.List;
 
-import org.gescom.dao.CategorieFournisseurRepository;
-import org.gescom.dao.FournisseurRepository;
-import org.gescom.dao.StatutRepository;
-import org.gescom.entities.CategorieFournisseur;
 import org.gescom.entities.Fournisseur;
-import org.gescom.entities.Statut;
 import org.gescom.metier.FourniseurMetier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-@Service
-public class FourniseurRestController implements FourniseurMetier{
-	@Autowired
-	private CategorieFournisseurRepository catRepository;
-	@Autowired
-	private StatutRepository statusRepository;
-	@Autowired
-	private FournisseurRepository fsseurRepository;
-	@Override
-	public Fournisseur saveFournisseur(Fournisseur f, Long idStatut, Long idCategorie) {
-		Statut s = statusRepository.getOne(idStatut);
-		CategorieFournisseur c=catRepository.getOne(idCategorie);
-		
-		f.setStatut(s);
-		f.setCategorieFournisseur(c);
-		return fsseurRepository.save(f);
-	}
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-	@Override
-	public Fournisseur updateFournisseur(Long idFournisseur, Fournisseur f, Long idStatut, Long idCategorie) {
-		Statut s = statusRepository.getOne(idStatut);
-		CategorieFournisseur c=catRepository.getOne(idCategorie);
-		
-		f.setIdFournisseur(idFournisseur);
-		f.setStatut(s);
-		f.setCategorieFournisseur(c);
-		return fsseurRepository.save(f);
+@RestController
+@RequestMapping("/api")
+public class FourniseurRestController {
+	@Autowired
+	private FourniseurMetier fourniseurMetier;
+	
+	@PostMapping("/fournisseur/{idStatut}/{idCategorie}")
+	public Fournisseur saveFournisseur(
+			@RequestBody Fournisseur f, 
+			@PathVariable Long idStatut, 
+			@PathVariable Long idCategorie) {
+		return fourniseurMetier.saveFournisseur(f, idStatut, idCategorie);
 	}
-
-	@Override
+	@PutMapping("/fournisseur/{idFournisseur}/{idStatut}/{idCategorie}")
+	public Fournisseur updateFournisseur(
+			@PathVariable Long idFournisseur, 
+			@RequestBody Fournisseur f, 
+			@PathVariable Long idStatut, 
+			@PathVariable Long idCategorie) {
+		return fourniseurMetier.updateFournisseur(idFournisseur, f, idStatut, idCategorie);
+	}
+	@DeleteMapping("/fournisseur/{idFournisseur}")
 	public boolean deleteFournisseur(Long idFournisseur) {
-		if(getFournisseur(idFournisseur)!=null)return true;
-		else return false;
+		return fourniseurMetier.deleteFournisseur(idFournisseur);
 	}
-
-	@Override
-	public Fournisseur getFournisseur(Long idFournisseur) {
-		// TODO Auto-generated method stub
-		return fsseurRepository.getOne(idFournisseur);
+	@GetMapping("/fournisseurId/{idFournisseur}")
+	public Fournisseur getFournisseur(@PathVariable Long idFournisseur) {
+		return fourniseurMetier.getFournisseur(idFournisseur);
 	}
-
-	@Override
+	@GetMapping("/fournisseur")
 	public List<Fournisseur> getAllFournisseur() {
-		// TODO Auto-generated method stub
-		return fsseurRepository.findAll();
+		return fourniseurMetier.getAllFournisseur();
 	}
-
-	@Override
-	public Page<Fournisseur> getParMc(String mc, int page, int size) {
-		// TODO Auto-generated method stub
-		return null;
+	@GetMapping("/fournisseur")
+	public Page<Fournisseur> getParMc(
+			@RequestParam(name="mc",defaultValue="")String mc, 
+			@RequestParam(name="page",defaultValue="0")int page, 
+			@RequestParam(name="size",defaultValue="5")int size) {
+		return fourniseurMetier.getParMc(mc, page, size);
 	}
-
+	
 }

@@ -2,50 +2,53 @@ package org.gescom.web;
 
 import java.util.List;
 
-import org.gescom.dao.ModeReglementRepository;
 import org.gescom.entities.ModeReglement;
 import org.gescom.metier.ModeReglementMetier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-@Service
-public class ModeReglementRestController implements ModeReglementMetier{
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api")
+public class ModeReglementRestController{
 	@Autowired
-	private ModeReglementRepository modeRepository;
-	@Override
-	public ModeReglement saveMode(ModeReglement m) {
-		// TODO Auto-generated method stub
-		return modeRepository.save(m);
+	private ModeReglementMetier modeReglementMetier;
+	
+	@PostMapping("/reglement")
+	public ModeReglement saveMode(@RequestBody ModeReglement m) {
+		return modeReglementMetier.saveMode(m);
 	}
-
-	@Override
-	public ModeReglement updateMode(String id, ModeReglement m) {
-		m.setLibelleReglement(id);
-		return null;
+	@PutMapping("/reglement/{id}")
+	public ModeReglement updateMode(@PathVariable String id, @RequestBody ModeReglement m) {
+		return modeReglementMetier.updateMode(id, m);
 	}
-
-	@Override
-	public boolean deleteMode(String id) {
-		if(getMode(id)!=null) return true;
-		else return false;
+	@DeleteMapping("/reglement/{id}")
+	public boolean deleteMode(@PathVariable String id) {
+		return modeReglementMetier.deleteMode(id);
 	}
-
-	@Override
+	@GetMapping("/reglementId/{idMode}")
 	public ModeReglement getMode(String idMode) {
-		// TODO Auto-generated method stub
-		return modeRepository.getOne(idMode);
+		return modeReglementMetier.getMode(idMode);
 	}
-
-	@Override
+	@GetMapping("/reglement")
 	public List<ModeReglement> getAll() {
-		// TODO Auto-generated method stub
-		return modeRepository.findAll();
+		return modeReglementMetier.getAll();
 	}
-
-	@Override
-	public Page<ModeReglement> getParMc(String mc, int page, int size) {
-		// TODO Auto-generated method stub
-		return null;
+	@GetMapping("/reglementMc")
+	public Page<ModeReglement> getParMc(
+			@RequestParam(name="mc",defaultValue="")String mc, 
+			@RequestParam(name="page",defaultValue="0")int page, 
+			@RequestParam(name="size",defaultValue="5")int size) {
+		return modeReglementMetier.getParMc(mc, page, size);
 	}
+	
 
 }

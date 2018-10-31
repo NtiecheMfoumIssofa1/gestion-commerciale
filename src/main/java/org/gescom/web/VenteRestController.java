@@ -2,67 +2,59 @@ package org.gescom.web;
 
 import java.util.List;
 
-import org.gescom.dao.ClientRepository;
-import org.gescom.dao.FactureRepository;
-import org.gescom.dao.VenteRepository;
-import org.gescom.entities.Client;
-import org.gescom.entities.Facture;
 import org.gescom.entities.Vente;
 import org.gescom.metier.VenteMetier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-@Service
-public class VenteRestController implements VenteMetier{
-	@Autowired
-	private VenteRepository venteRepository;
-	@Autowired
-	private ClientRepository clientRepository;
-	@Autowired
-	private FactureRepository factureRepository;
-	@Override
-	public Vente saveVente(Vente v, Long idClient, String idFacture) {
-		Client c =clientRepository.getOne(idClient);
-		Facture f =factureRepository.getOne(idFacture);
-		
-		v.setClient(c);
-		v.setFacture(f);
-		return venteRepository.save(v);
-	}
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-	@Override
-	public Vente updateVente(String idVente, Vente v, Long idClient, String idFacture) {
-		Client c =clientRepository.getOne(idClient);
-		Facture f =factureRepository.getOne(idFacture);
-		
-		v.setNumVente(idVente);
-		v.setClient(c);
-		v.setFacture(f);
-		return venteRepository.save(v);
-	}
+@RestController
+@RequestMapping("/api")
+public class VenteRestController {
+	@Autowired
+	private VenteMetier venteMetier;
 
-	@Override
+	@PostMapping("/vente/{idClient}/{idFacture}")
+	public Vente saveVente(
+			@RequestBody Vente v,  
+			@PathVariable Long idClient, 
+			@PathVariable String idFacture) {
+		return venteMetier.saveVente(v, idClient, idFacture);
+	}
+	@PutMapping("/vente/{idVente}/{idClient}/{idFacture}")
+	public Vente updateVente(
+			@PathVariable String idVente, 
+			@RequestBody Vente a, 
+			@PathVariable Long idClient, 
+			@PathVariable String idFacture) {
+		return venteMetier.updateVente(idVente, a, idClient, idFacture);
+	}
+	@GetMapping("/vente")
 	public List<Vente> getAllVente() {
-		// TODO Auto-generated method stub
-		return venteRepository.findAll();
+		return venteMetier.getAllVente();
 	}
-
-	@Override
+	@GetMapping("/venteId/{idVente}")
 	public Vente getVente(String idVente) {
-		// TODO Auto-generated method stub
-		return venteRepository.getOne(idVente);
+		return venteMetier.getVente(idVente);
 	}
-
-	@Override
-	public Page<Vente> getVenteParMc(String mc, int page, int size) {
-		
-		return null;
+	@GetMapping("/venteMc")
+	public Page<Vente> getVenteParMc(
+			@RequestParam(name="mc",defaultValue="")String mc, 
+			@RequestParam(name="page",defaultValue="0")int page, 
+			@RequestParam(name="size",defaultValue="5")int size) {
+		return venteMetier.getVenteParMc(mc, page, size);
 	}
-
-	@Override
-	public boolean deleteVente(String idVente) {
-		if(getVente(idVente)!=null) return true;
-		else return false;
+	@DeleteMapping("/vente/{idVente}")
+	public boolean deleteVente(@PathVariable String idVente) {
+		return venteMetier.deleteVente(idVente);
 	}
-
+	
 }

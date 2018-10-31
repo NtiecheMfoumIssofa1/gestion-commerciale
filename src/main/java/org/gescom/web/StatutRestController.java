@@ -2,50 +2,52 @@ package org.gescom.web;
 
 import java.util.List;
 
-import org.gescom.dao.StatutRepository;
 import org.gescom.entities.Statut;
 import org.gescom.metier.StatutMetier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-@Service
-public class StatutRestController implements StatutMetier{
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api")
+public class StatutRestController {
 	@Autowired
- private StatutRepository statutRepository;
-	@Override
-	public Statut saveStatut(Statut s) {
-		// TODO Auto-generated method stub
-		return statutRepository.save(s);
-	}
+	private StatutMetier statutMetier;
 
-	@Override
-	public Statut updateStatut(Long idStatut, Statut s) {
-		s.setIdStatut(idStatut);
-		return statutRepository.save(s);
+	@PostMapping("/statut")
+	public Statut saveStatut(@RequestBody Statut s) {
+		return statutMetier.saveStatut(s);
 	}
-
-	@Override
-	public boolean deleteStatut(Long idStatut) {
-		if(getStatut(idStatut)!=null) return true;
-		else return false;
+	@PutMapping("/statut/{idStatut}")
+	public Statut updateStatut(@PathVariable Long idStatut, @RequestBody Statut s) {
+		return statutMetier.updateStatut(idStatut, s);
 	}
-
-	@Override
-	public Statut getStatut(Long idStatut) {
-		// TODO Auto-generated method stub
-		return statutRepository.getOne(idStatut);
+	@DeleteMapping("/statut/{idStatut}")
+	public boolean deleteStatut(@PathVariable Long idStatut) {
+		return statutMetier.deleteStatut(idStatut);
 	}
-
-	@Override
+	@GetMapping("/statutId/{idStatut}")
+	public Statut getStatut(@PathVariable Long idStatut) {
+		return statutMetier.getStatut(idStatut);
+	}
+	@GetMapping("/statut")
 	public List<Statut> getAllStatut() {
-		// TODO Auto-generated method stub
-		return statutRepository.findAll();
+		return statutMetier.getAllStatut();
 	}
-
-	@Override
-	public Page<Statut> getParMc(String mc, int page, int size) {
-		// TODO Auto-generated method stub
-		return null;
+	@GetMapping("/statutMc")
+	public Page<Statut> getParMc(
+			@RequestParam(name="mc",defaultValue="")String mc, 
+			@RequestParam(name="page",defaultValue="0")int page, 
+			@RequestParam(name="size",defaultValue="5")int size) {
+		return statutMetier.getParMc(mc, page, size);
 	}
-
+	
 }
